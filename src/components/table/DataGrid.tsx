@@ -31,6 +31,7 @@ import {
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useDatasetStore } from '../../store/useDatasetStore'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import type { ColumnSchema } from '../../types/dataset'
 
 /** Available page sizes for the pagination selector. */
@@ -144,13 +145,15 @@ interface SortableHeaderProps {
 /** Clickable header that toggles column sorting and shows the sort direction. */
 function SortableHeader({ column, label }: SortableHeaderProps) {
   const sorted = column.getIsSorted()
+  const accent = useAccentColor()
   return (
     <button
       type="button"
       onClick={column.getToggleSortingHandler()}
+      style={sorted ? { color: accent } : undefined}
       className={cn(
         'inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide transition-colors',
-        sorted ? 'text-mint-600 dark:text-mint-400' : 'text-surface-muted hover:text-surface-text',
+        sorted ? undefined : 'text-surface-muted hover:text-surface-text',
       )}
     >
       {label}
@@ -188,15 +191,16 @@ interface PaginationButtonProps {
 
 /** Icon button used for the pagination navigation controls. */
 function PaginationButton({ onClick, disabled, label, icon: Icon }: PaginationButtonProps) {
+  const accent = useAccentColor()
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="inline-flex h-8 w-8 items-center justify-center  border border-surface-border bg-surface-card text-surface-muted transition-colors hover:bg-mint-50/50 hover:text-surface-text disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-mint-900/10"
+      className="inline-flex h-8 w-8 items-center justify-center border border-surface-border bg-surface-card text-surface-muted transition-colors hover:bg-mint-50/50 hover:text-surface-text disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-mint-900/10"
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-4 w-4" style={{ color: accent }} />
     </button>
   )
 }
@@ -330,7 +334,7 @@ export function DataGrid() {
             onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Search all columns…"
             aria-label="Search dataset"
-            className="h-9 w-full  border border-surface-border bg-surface-canvas pl-9 pr-3 text-sm text-surface-text placeholder:text-surface-muted focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
+            className="h-9 w-full border border-surface-border bg-surface-canvas pl-9 pr-3 text-sm text-surface-text placeholder:text-surface-muted accent-focus focus:outline-none"
           />
         </div>
 

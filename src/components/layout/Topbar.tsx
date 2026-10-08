@@ -1,7 +1,7 @@
 import { Menu, Palette, PanelLeftClose, PanelLeftOpen, Search } from 'lucide-react'
 import { useLayoutStore } from '../../store/useLayoutStore'
 import { useDatasetStore } from '../../store/useDatasetStore'
-import { CHART_PALETTE_LABELS } from '../../utils/analytics'
+import { CHART_PALETTE_LABELS, getChartPalette } from '../../utils/analytics'
 import type { ChartPaletteId } from '../../types/theme'
 import { ThemeToggle } from './ThemeToggle'
 
@@ -11,6 +11,7 @@ export function Topbar() {
   const setMobileNavOpen = useLayoutStore((state) => state.setMobileNavOpen)
   const chartPalette = useDatasetStore((state) => state.chartPalette)
   const setChartPalette = useDatasetStore((state) => state.setChartPalette)
+  const accentColor = getChartPalette(chartPalette)[0]
 
   return (
     <header className="no-print flex h-16 shrink-0 items-center gap-3 border-b border-surface-border bg-surface-card px-4 lg:px-6">
@@ -43,7 +44,7 @@ export function Topbar() {
         <input
           type="search"
           placeholder="Search extractions, reports…"
-          className="h-9 w-full  border border-surface-border bg-surface-canvas pl-9 pr-3 text-sm text-surface-text placeholder:text-surface-muted focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
+          className="h-9 w-full border border-surface-border bg-surface-canvas pl-9 pr-3 text-sm text-surface-text placeholder:text-surface-muted accent-focus focus:outline-none"
         />
       </div>
 
@@ -67,7 +68,10 @@ export function Topbar() {
 
         <ThemeToggle />
         <div className="flex items-center gap-2 border-l border-surface-border pl-3">
-          <span className="flex h-8 w-8 items-center justify-center bg-mint-500 text-sm font-semibold text-white">
+          <span
+            className="flex h-8 w-8 items-center justify-center text-sm font-semibold text-white"
+            style={{ backgroundColor: accentColor }}
+          >
             EB
           </span>
           <div className="hidden text-sm leading-tight md:block">

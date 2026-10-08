@@ -3,6 +3,7 @@ import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react'
 import { CloudUpload, FileSpreadsheet, LoaderCircle, TriangleAlert, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useDatasetStore } from '../../store/useDatasetStore'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import { FileParseError, parseFile } from '../../utils/fileParser'
 
 /** File extensions accepted by the dropzone. */
@@ -22,6 +23,7 @@ const SAMPLE_ACTIONS: readonly { id: 'saas' | 'ecommerce'; label: string }[] = [
 export function Dropzone() {
   const setDataset = useDatasetStore((state) => state.setDataset)
   const loadSampleDataset = useDatasetStore((state) => state.loadSampleDataset)
+  const accentColor = useAccentColor()
 
   const [isDragging, setIsDragging] = useState(false)
   const [isParsing, setIsParsing] = useState(false)
@@ -131,13 +133,14 @@ export function Dropzone() {
         />
 
         {isParsing ? (
-          <LoaderCircle className="h-10 w-10 animate-spin text-mint-500" />
+          <LoaderCircle className="h-10 w-10 animate-spin" style={{ color: accentColor }} />
         ) : (
           <CloudUpload
             className={cn(
-              'h-10 w-10 text-mint-500 transition-transform duration-200',
+              'h-10 w-10 transition-transform duration-200',
               isDragging && 'animate-bounce',
             )}
+            style={{ color: accentColor }}
           />
         )}
 
@@ -146,7 +149,7 @@ export function Dropzone() {
         </p>
         <p className="mt-1 text-sm text-surface-muted">
           or{' '}
-          <span className="font-medium text-mint-600 dark:text-mint-400">browse files</span>
+          <span className="font-medium" style={{ color: accentColor }}>browse files</span>
         </p>
         <p className="mt-3 text-xs text-surface-muted">Supports .csv, .xls, and .xlsx</p>
       </div>
@@ -161,7 +164,7 @@ export function Dropzone() {
             onClick={() => loadSampleDataset(action.id)}
             className="inline-flex items-center gap-2  border border-surface-border bg-surface-card px-3 py-2 text-sm font-medium text-surface-text transition-colors hover:bg-mint-50/50 hover:text-mint-700 dark:hover:bg-mint-900/10 dark:hover:text-mint-300"
           >
-            <FileSpreadsheet className="h-4 w-4 text-mint-500" />
+            <FileSpreadsheet className="h-4 w-4" style={{ color: accentColor }} />
             {action.label}
           </button>
         ))}

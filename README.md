@@ -1,75 +1,144 @@
-# React + TypeScript + Vite
+# Enterprise SaaS Analytics & Spreadsheet Extraction Suite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Version 1.0** — In Active Development
 
-Currently, two official plugins are available:
+**Author:** Estera Bulkiewicz
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+A high-performance, fully client-side web application for uploading, parsing, analyzing, and visualizing SaaS and E-Commerce spreadsheet datasets — with **zero server roundtrips**.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Project Overview
 
-## Expanding the ESLint configuration
+This suite transforms raw `.csv`, `.xls`, and `.xlsx` files into an interactive analytics workspace entirely within the browser. Upload a spreadsheet (or load a bundled sample) and the application instantly:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Ingests** the file into typed, in-memory datasets.
+2. **Infers** schemas and column data types automatically.
+3. **Aggregates** numeric metrics (sum, average, min, max).
+4. **Visualizes** trends, distributions, and category comparisons.
+5. **Exports** filtered data as CSV or a print/PDF-ready executive report.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Roadmap
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+This project represents **Version 1 (In Active Development)** and will be expanded with modular future enhancements, including:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Automated AI summary insights** generated from extracted datasets.
+- **Custom query builders** for ad-hoc filtering and aggregation.
+- **Database connectors** for loading datasets directly from external sources.
+- **Scheduled reports** and additional chart types.
 
+---
+
+## Key Capabilities & Architecture
+
+### In-Memory Ingestion Pipeline
+Asynchronous parsing of `.csv` (via PapaParse) and `.xls`/`.xlsx` (via SheetJS) into a unified, strictly-typed `ParsedDataset` model. Files never leave the browser.
+
+### Automated Schema & Dynamic Type Inference
+Columns are classified as `number`, `date`, `boolean`, or `string` by sampling up to 100 rows. Currency symbols (`$`, `€`, `£`, `¥`) and thousands separators are stripped during numeric detection, ISO/`MM/DD/YYYY` dates are recognized, and header keys are sanitized into camelCase identifiers.
+
+### Interactive Recharts Analytics
+Dynamic Area/Trend, Bar, and Donut charts with **customizable color palettes**:
+- **Mint Emerald** (default)
+- **Cyber Indigo**
+- **Ocean Cyan**
+- **Sunset Amber**
+
+Palette selection persists across sessions and synchronizes chart fills, metric-card icons, sidebar highlights, and other UI accents.
+
+### Enterprise DataGrid
+TanStack Table v8 with debounced global search, multi-column sorting (numeric/date-aware), pagination (10/25/50/100 rows), and column-visibility controls.
+
+### Dedicated Extraction & Reporting Views
+- **Extraction:** schema inspection tables, raw row review, and numeric quick-metrics.
+- **Reports:** print/PDF-optimized executive summaries with copy-to-clipboard support.
+
+### Privacy-First & Fully Client-Side
+All data processing occurs in active browser memory (RAM). No files or raw data are transmitted to external servers.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| **Frontend** | React 19, TypeScript (Strict Mode), Vite |
+| **Styling** | Tailwind CSS v4 (class-based dark mode, custom design tokens) |
+| **State** | Zustand |
+| **Tables** | TanStack Table v8 |
+| **Parsing** | SheetJS (`xlsx`), PapaParse |
+| **Visuals** | Recharts, Lucide Icons |
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+ (recommended: 20+)
+- npm (or pnpm/yarn)
+
+### Local Development
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd enterprise-saas-analytics
+
+# Install dependencies
+npm install
+
+# Start local development server
+npm run dev
+
+# Build for production (type-check + bundle to dist/)
+npm run build
+
+# Preview production build locally
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+### Other Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Lint the codebase
+npm run lint
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Run the parser self-test
+npm run test:parser
+```
+
+---
+
+## Project Structure
 
 ```
+src/
+├── components/
+│   ├── analytics/      # MetricCards, AnalyticsView (Recharts suite)
+│   ├── controls/       # ExportActions (CSV / print / copy)
+│   ├── layout/         # AppShell, Sidebar, Topbar, ThemeToggle, navigation
+│   ├── table/          # DataGrid (TanStack Table v8)
+│   └── upload/         # Dropzone
+├── context/            # ThemeProvider, ThemeContext (dark/light theme engine)
+├── data/               # Pre-packaged sample datasets
+├── hooks/              # useAccentColor (palette-synced accent)
+├── lib/                # cn() class merge utility
+├── pages/              # Dashboard, Analytics, Extraction, Reports
+├── store/              # useDatasetStore, useLayoutStore (Zustand)
+├── types/              # theme, dataset, navigation interfaces
+└── utils/              # analytics, csv, fileParser
+```
+
+---
+
+## Design System
+
+- **Mint palette** tokens (50–900) plus theme-aware `surface` tokens (canvas/card/border/text/muted) for seamless light/dark transitions.
+- **Sharp corners** — the UI uses unrounded (`rounded-none`) edges for a crisp, enterprise aesthetic.
+- **Class-based dark mode** toggled via the `.dark` class on `<html>` and persisted to `localStorage`.
+- **Chart palettes** selectable from the top bar, persisted in Zustand + `localStorage`, and mirrored to a `--accent` CSS variable for icon/focus synchronization.
+
+---
+
+## License
+
+Proprietary — all rights reserved. © Estera Bulkiewicz.
+

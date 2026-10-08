@@ -1,6 +1,7 @@
 import { PanelsTopLeft, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useLayoutStore } from '../../store/useLayoutStore'
+import { useAccentColor } from '../../hooks/useAccentColor'
 import { PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './navigation'
 import type { NavItem } from '../../types/navigation'
 
@@ -12,6 +13,7 @@ function NavItemButton({ item }: NavItemButtonProps) {
   const activePage = useLayoutStore((state) => state.activePage)
   const setActivePage = useLayoutStore((state) => state.setActivePage)
   const collapsed = useLayoutStore((state) => state.sidebarCollapsed)
+  const accent = useAccentColor()
   const isActive = activePage === item.key
   const Icon = item.icon
 
@@ -21,11 +23,12 @@ function NavItemButton({ item }: NavItemButtonProps) {
       onClick={() => setActivePage(item.key)}
       aria-current={isActive ? 'page' : undefined}
       title={collapsed ? item.label : undefined}
+      style={isActive ? { backgroundColor: accent } : undefined}
       className={cn(
-        'flex w-full items-center gap-3  px-3 py-2 text-sm font-medium transition-colors',
+        'flex w-full items-center gap-3 px-3 py-2 text-sm font-medium transition-colors',
         collapsed && 'justify-center px-2',
         isActive
-          ? 'bg-mint-500 text-white shadow-sm'
+          ? 'text-white shadow-sm'
           : 'text-surface-muted hover:bg-mint-50 hover:text-surface-text dark:hover:bg-mint-500/10 dark:hover:text-surface-text',
       )}
     >

@@ -47,6 +47,7 @@
   --surface-border: #e2e8f0;
   --surface-text: #0f172a;
   --surface-muted: #64748b;
+  --accent: #10b981;
   color-scheme: light;
 }
 
@@ -94,4 +95,10 @@
     --surface-text: #0f172a;
     --surface-muted: #64748b;
   }
+}
+
+/* Dynamic accent focus ring, synced to the active chart palette via --accent. */
+.accent-focus:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 18%, transparent);
 }
