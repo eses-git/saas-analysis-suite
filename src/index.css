@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode (Tailwind v4 equivalent of `darkMode: 'class'`). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Mint accent palette */
+  --color-mint-50: #ecfdf5;
+  --color-mint-100: #d1fae5;
+  --color-mint-200: #a7f3d0;
+  --color-mint-300: #6ee7b7;
+  --color-mint-400: #34d399;
+  --color-mint-500: #10b981; /* Primary Accent */
+  --color-mint-600: #059669; /* Primary Dark Accent */
+  --color-mint-700: #047857;
+  --color-mint-800: #065f46;
+  --color-mint-900: #064e3b;
+
+  /* Light surface tokens */
+  --color-surface-light-canvas: #f8fafc;
+  --color-surface-light-card: #ffffff;
+  --color-surface-light-border: #e2e8f0;
+  --color-surface-light-text: #0f172a;
+  --color-surface-light-muted: #64748b;
+
+  /* Dark surface tokens */
+  --color-surface-dark-canvas: #090d16;
+  --color-surface-dark-card: #111827;
+  --color-surface-dark-border: #1e293b;
+  --color-surface-dark-text: #f8fafc;
+  --color-surface-dark-muted: #94a3b8;
+
+  /* Theme-aware semantic surface tokens (resolve via `.dark` below). */
+  --color-surface-canvas: var(--surface-canvas);
+  --color-surface-card: var(--surface-card);
+  --color-surface-border: var(--surface-border);
+  --color-surface-text: var(--surface-text);
+  --color-surface-muted: var(--surface-muted);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+  --surface-canvas: #f8fafc;
+  --surface-card: #ffffff;
+  --surface-border: #e2e8f0;
+  --surface-text: #0f172a;
+  --surface-muted: #64748b;
+  color-scheme: light;
+}
+
+.dark {
+  --surface-canvas: #090d16;
+  --surface-card: #111827;
+  --surface-border: #1e293b;
+  --surface-text: #f8fafc;
+  --surface-muted: #94a3b8;
+  color-scheme: dark;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--surface-canvas);
+    color: var(--surface-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@media print {
+  /* Hide app chrome and interactive controls when printing. */
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background-color: #ffffff;
+  }
+
+  /* Force light tokens so exports always print cleanly, even in dark mode. */
+  .dark {
+    --surface-canvas: #f8fafc;
+    --surface-card: #ffffff;
+    --surface-border: #e2e8f0;
+    --surface-text: #0f172a;
+    --surface-muted: #64748b;
+  }
+}
