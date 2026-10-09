@@ -16,7 +16,7 @@ interface MetricCardProps {
 /** A single elevated metric card with an icon, value, and optional badge. */
 function MetricCard({ title, icon: Icon, value, sub, badge, accent }: MetricCardProps) {
   return (
-    <div className="border border-surface-border bg-surface-card p-5 shadow-sm">
+    <div className="print-avoid-break border border-surface-border bg-surface-card p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-surface-muted">{title}</p>
         <span

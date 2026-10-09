@@ -87,6 +87,47 @@
     background-color: #ffffff;
   }
 
+  /* Remove scrollbars and container overflow restrictions so tables and
+     content can expand to render every row across printed pages. */
+  html,
+  body,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  main,
+  section,
+  .overflow-x-auto,
+  .overflow-y-auto {
+    overflow: visible !important;
+  }
+
+  /* Keep metric cards and chart wrappers intact across page breaks. */
+  .print-avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Force major report sections onto fresh pages. */
+  .print-break-after {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  /* Let data tables span pages with a repeated header row and unbroken rows. */
+  table {
+    page-break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
   /* Force light tokens so exports always print cleanly, even in dark mode. */
   .dark {
     --surface-canvas: #f8fafc;

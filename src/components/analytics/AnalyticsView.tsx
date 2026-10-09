@@ -52,7 +52,7 @@ interface TrendChartProps {
 /** Line/area chart plotting the metric over time (or row sequence). */
 function TrendChart({ data, metricLabel, color }: TrendChartProps) {
   return (
-    <div className=" border border-surface-border bg-surface-card p-5 shadow-sm">
+    <div className="print-avoid-break border border-surface-border bg-surface-card p-5 shadow-sm">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-surface-text">Trend Analysis</h3>
         <p className="text-xs text-surface-muted">{metricLabel} over time</p>
@@ -110,7 +110,7 @@ interface CategoryChartProps {
 /** Horizontal bar chart comparing the metric across the top categories. */
 function CategoryChart({ data, metricLabel, color }: CategoryChartProps) {
   return (
-    <div className=" border border-surface-border bg-surface-card p-5 shadow-sm">
+    <div className="print-avoid-break border border-surface-border bg-surface-card p-5 shadow-sm">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-surface-text">Category Comparison</h3>
         <p className="text-xs text-surface-muted">{metricLabel} by category</p>
@@ -157,7 +157,7 @@ function DistributionChart({ data }: DistributionChartProps) {
   const total = data.reduce((sum, item) => sum + item.value, 0)
 
   return (
-    <div className=" border border-surface-border bg-surface-card p-5 shadow-sm">
+    <div className="print-avoid-break border border-surface-border bg-surface-card p-5 shadow-sm">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-surface-text">Distribution Breakdown</h3>
         <p className="text-xs text-surface-muted">Share by category</p>

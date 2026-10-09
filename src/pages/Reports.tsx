@@ -3,9 +3,18 @@ import { Check, Copy, FileText } from 'lucide-react'
 import { AnalyticsView } from '../components/analytics/AnalyticsView'
 import { MetricCards } from '../components/analytics/MetricCards'
 import { ExportActions } from '../components/controls/ExportActions'
+import { FullDataTable } from '../components/table/FullDataTable'
 import { useDatasetStore } from '../store/useDatasetStore'
 import { formatNumber } from '../utils/analytics'
 import type { ParsedDataset } from '../types/dataset'
+
+/**
+ * Print scope for the executive report: render only the on-screen summary, or
+ * include a full, unpaginated table of every extracted (filtered) record.
+ *
+ * @author Estera Bulkiewicz
+ */
+type PrintMode = 'current-view' | 'all-records'
 
 /** Builds a plain-text executive summary for clipboard copying. */
 function buildSummaryText(dataset: ParsedDataset): string {
@@ -30,6 +39,7 @@ function buildSummaryText(dataset: ParsedDataset): string {
 export function Reports() {
   const currentDataset = useDatasetStore((state) => state.currentDataset)
   const [copied, setCopied] = useState(false)
+  const [printMode, setPrintMode] = useState<PrintMode>('current-view')
 
   if (currentDataset === null) {
     return (
@@ -77,6 +87,18 @@ export function Reports() {
           {/* Export action toolbar */}
           <div className="no-print flex shrink-0 flex-wrap items-center gap-2">
             <ExportActions />
+            <label className="flex items-center gap-2 text-sm text-surface-muted">
+              Print scope
+              <select
+                value={printMode}
+                onChange={(event) => setPrintMode(event.target.value as PrintMode)}
+                aria-label="Print scope"
+                className="h-9 rounded-none border border-surface-border bg-surface-card px-2 text-sm text-surface-text focus:border-mint-500 focus:outline-none"
+              >
+                <option value="current-view">Print Current View</option>
+                <option value="all-records">Print All Extracted Records</option>
+              </select>
+            </label>
             <button
               type="button"
               onClick={() => void handleCopySummary()}
@@ -93,7 +115,12 @@ export function Reports() {
       <MetricCards />
 
       {/* Printable Recharts visualizations */}
-      <AnalyticsView />
+      <div className={printMode === 'all-records' ? 'print-break-after' : undefined}>
+        <AnalyticsView />
+      </div>
+
+      {/* Full, unpaginated record table (print scope: all extracted records) */}
+      {printMode === 'all-records' && <FullDataTable />}
     </div>
   )
 }

@@ -34,8 +34,11 @@ import { useDatasetStore } from '../../store/useDatasetStore'
 import { useAccentColor } from '../../hooks/useAccentColor'
 import type { ColumnSchema } from '../../types/dataset'
 
-/** Available page sizes for the pagination selector. */
-const PAGE_SIZES = [10, 25, 50, 100] as const
+/** Fixed page-size options offered by the pagination toolbar. */
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const
+
+/** Sentinel value representing the "show all rows" selection in the dropdown. */
+const ALL_ROWS_VALUE = -1
 
 /** Delay before a search query is committed to the table filter (ms). */
 const SEARCH_DEBOUNCE_MS = 300
@@ -331,6 +334,18 @@ export function DataGrid() {
   const firstRow = totalFiltered === 0 ? 0 : pageIndex * pageSize + 1
   const lastRow = Math.min((pageIndex + 1) * pageSize, totalFiltered)
 
+  // Which option is currently active, for the controlled <select>. "All" sets
+  // the table page size to the full row count, which never matches a fixed
+  // option (except for datasets with exactly 10/25/50/100 rows).
+  const isAllRowsActive = !(PAGE_SIZE_OPTIONS as readonly number[]).includes(pageSize)
+  const pageSizeSelectValue = isAllRowsActive ? String(ALL_ROWS_VALUE) : String(pageSize)
+
+  /** Applies the selected page size, expanding to the full row count for "All". */
+  const handlePageSizeChange = (value: string): void => {
+    const parsed = Number(value)
+    table.setPageSize(parsed === ALL_ROWS_VALUE ? Math.max(data.length, 1) : parsed)
+  }
+
   return (
     <div className="overflow-hidden  border border-surface-border bg-surface-card shadow-sm">
       {/* Toolbar: search + column visibility */}
@@ -442,16 +457,17 @@ export function DataGrid() {
         <div className="flex items-center gap-2 text-sm text-surface-muted">
           <span>Rows per page</span>
           <select
-            value={pageSize}
-            onChange={(event) => table.setPageSize(Number(event.target.value))}
+            value={pageSizeSelectValue}
+            onChange={(event) => handlePageSizeChange(event.target.value)}
             aria-label="Rows per page"
-            className="h-8  border border-surface-border bg-surface-card px-2 text-sm text-surface-text focus:border-mint-500 focus:outline-none"
+            className="h-8 rounded-none border border-surface-border bg-surface-card px-2 text-sm text-surface-text focus:border-mint-500 focus:outline-none"
           >
-            {PAGE_SIZES.map((size) => (
+            {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
             ))}
+            <option value={ALL_ROWS_VALUE}>All</option>
           </select>
           <span className="ml-2 tabular-nums">
             {firstRow}–{lastRow} of {totalFiltered}

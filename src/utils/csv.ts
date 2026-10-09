@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx'
 import type { ParsedDataset } from '../types/dataset'
 
 /**
@@ -73,10 +74,68 @@ function downloadTextFile(filename: string, content: string, mimeType: string): 
   URL.revokeObjectURL(url)
 }
 
-/** Exports the search-filtered dataset rows as a downloadable CSV file. */
+/** Supported file extensions for exported datasets. */
+export type ExportExtension = 'csv' | 'xlsx'
+
+/**
+ * Builds a deterministic download filename by stripping any existing extension
+ * from the base name and appending the `_analytics_suite` brand suffix.
+ * Examples: `saas_revenue` → `saas_revenue_analytics_suite.csv`,
+ * `uploaded_data.xlsx` → `uploaded_data_analytics_suite.xlsx`.
+ *
+ * @author Estera Bulkiewicz
+ */
+export function generateExportFilename(baseName: string, extension: ExportExtension): string {
+  const stem = baseName.replace(/\.[^.]+$/, '') || 'dataset'
+  return `${stem}_analytics_suite.${extension}`
+}
+
+/**
+ * Exports the full search-filtered dataset (not the paginated on-screen view)
+ * as a downloadable CSV file. Every cell passes through `sanitizeCsvCell`.
+ *
+ * @author Estera Bulkiewicz
+ */
 export function exportDatasetCsv(dataset: ParsedDataset, searchQuery: string): void {
   const rows = filterRowsByQuery(dataset.rawData, searchQuery)
   const csv = buildDatasetCsv(dataset, rows)
-  const baseName = dataset.fileName.replace(/\.[^.]+$/, '') || 'dataset'
-  downloadTextFile(`${baseName}.csv`, csv, 'text/csv;charset=utf-8;')
+  const filename = generateExportFilename(dataset.fileName, 'csv')
+  downloadTextFile(filename, csv, 'text/csv;charset=utf-8;')
+}
+
+/**
+ * Coerces a cell for Excel export: string values pass through
+ * `sanitizeCsvCell` for formula-injection protection, while numbers, dates,
+ * and booleans keep their native spreadsheet types.
+ *
+ * @author Estera Bulkiewicz
+ */
+function sanitizeCellForExcel(value: unknown): string | number | boolean | Date {
+  if (typeof value === 'string') return sanitizeCsvCell(value)
+  if (typeof value === 'number') return value
+  if (typeof value === 'boolean') return value
+  if (value instanceof Date) return value
+  return String(value ?? '')
+}
+
+/**
+ * Exports the full search-filtered dataset (not the paginated on-screen view)
+ * as a native `.xlsx` workbook via SheetJS, with formula-injection protection
+ * applied to every string cell.
+ *
+ * @author Estera Bulkiewicz
+ */
+export function exportDatasetXlsx(dataset: ParsedDataset, searchQuery: string): void {
+  const rows = filterRowsByQuery(dataset.rawData, searchQuery)
+  const header: (string | number | boolean | Date)[] = dataset.columns.map(
+    (column) => column.label,
+  )
+  const body: (string | number | boolean | Date)[][] = rows.map((row) =>
+    dataset.columns.map((column) => sanitizeCellForExcel(row[column.key])),
+  )
+  const worksheet = XLSX.utils.aoa_to_sheet([header, ...body])
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Data')
+  const filename = generateExportFilename(dataset.fileName, 'xlsx')
+  XLSX.writeFile(workbook, filename)
 }
