@@ -58,6 +58,21 @@ All data processing occurs in active browser memory (RAM). No files or raw data 
 
 ---
 
+## Security & Privacy
+
+The suite follows a **zero-trust, client-side** data model. Files are parsed entirely in active browser memory (RAM), and no raw data, cell values, or file bytes are ever transmitted to a server. All code is authored by **Estera Bulkiewicz**.
+
+### CSV / Formula Injection Safeguards
+Every cell exported to CSV is passed through `sanitizeCsvCell`, which neutralizes spreadsheet formula-injection vectors by prefixing cells that begin with `=`, `+`, `-`, `@`, tab, or carriage return with a single quote (`'`). This forces Excel, LibreOffice, and other spreadsheet tools to render the content as plain text rather than executing it as a formula.
+
+### Client-Side File Size Guards
+Before any parsing begins, uploads are validated against explicit size ceilings — **30 MB** for `.csv` and **15 MB** for `.xls`/`.xlsx`. Oversized files are rejected immediately with a user-friendly error, preventing memory exhaustion (OOM) crashes in the browser tab.
+
+### Zero External Network Transmission (RAM-only Processing)
+All ingestion, schema inference, aggregation, and visualization occur in browser memory. Non-printable ASCII characters and control codes are stripped during dataset normalization, and cell rendering uses escaped plain text (never `dangerouslySetInnerHTML`), keeping untrusted file content inert end-to-end.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |

@@ -180,9 +180,34 @@ function buildColumns(labels: string[], rows: Record<string, unknown>[]): Column
 }
 
 /**
+ * ASCII control characters (and the DEL byte) that are stripped from string
+ * cell values during normalization. Tab (`\t`), line feed (`\n`), and carriage
+ * return (`\r`) are deliberately preserved: they are legitimate in-cell
+ * whitespace, and formula-injection neutralization for those characters is
+ * handled separately at CSV-export time (see `src/utils/csv.ts`).
+ *
+ * @author Estera Bulkiewicz
+ */
+// eslint-disable-next-line no-control-regex -- intentional match of C0/DEL control characters for sanitization
+const CONTROL_CHARACTER_PATTERN = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g
+
+/**
+ * Strips non-printable ASCII characters and control codes from a value so
+ * untrusted cell content cannot smuggle invisible or control bytes into the
+ * in-memory dataset. Non-string values (numbers, dates, booleans) are returned
+ * unchanged.
+ *
+ * @author Estera Bulkiewicz
+ */
+function stripControlCharacters(value: unknown): unknown {
+  if (typeof value !== 'string') return value
+  return value.replace(CONTROL_CHARACTER_PATTERN, '')
+}
+
+/**
  * Remaps each raw row from original header keys to sanitized column keys,
- * preserving values verbatim so downstream consumers still see the original
- * (un-coerced) cell contents.
+ * stripping non-printable control characters from string values so the
+ * in-memory model stays clean and safe to render.
  */
 function sanitizeRows(
   rows: Record<string, unknown>[],
@@ -191,7 +216,7 @@ function sanitizeRows(
   return rows.map((row) => {
     const sanitized: Record<string, unknown> = {}
     for (const column of columns) {
-      sanitized[column.key] = row[column.label]
+      sanitized[column.key] = stripControlCharacters(row[column.label])
     }
     return sanitized
   })

@@ -1,8 +1,35 @@
 import type { ParsedDataset } from '../types/dataset'
 
+/**
+ * Formula-injection trigger characters that cause spreadsheet software
+ * (Microsoft Excel, LibreOffice, Google Sheets) to interpret a cell as a
+ * formula instead of rendering it as plain text.
+ *
+ * @author Estera Bulkiewicz
+ */
+const FORMULA_TRIGGER_PATTERN = /^[=+\-@\t\r]/
+
+/**
+ * Neutralizes CSV / formula-injection vectors by prefixing cells that begin
+ * with a formula trigger character (`=`, `+`, `-`, `@`, tab, carriage return)
+ * with a single quote (`'`). Spreadsheet applications treat a leading
+ * apostrophe as a plain-text escape, so a value like `=cmd|' /C calc'!A0` is
+ * exported verbatim instead of being executed.
+ *
+ * Applied to every exported cell (headers included) before CSV escaping so
+ * untrusted file contents can never execute on the client or in downstream
+ * spreadsheet tooling.
+ *
+ * @author Estera Bulkiewicz
+ */
+export function sanitizeCsvCell(value: unknown): string {
+  const text = String(value ?? '')
+  return FORMULA_TRIGGER_PATTERN.test(text) ? `'${text}` : text
+}
+
 /** Escapes a cell for inclusion in a CSV (quotes and doubles embedded quotes). */
 function escapeCsvCell(value: unknown): string {
-  const text = value === null || value === undefined ? '' : String(value)
+  const text = sanitizeCsvCell(value)
   if (/[",\n\r]/.test(text)) {
     return `"${text.replace(/"/g, '""')}"`
   }

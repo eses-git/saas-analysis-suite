@@ -76,6 +76,13 @@ function formatDate(value: unknown): string {
  * Renders a cell value according to its inferred column type: numbers use
  * locale formatting, dates use a legible date string, everything else is
  * stringified. Empty cells render an em dash.
+ *
+ * The return type is intentionally a plain `string` (never markup): the grid
+ * renders it as React text, so content is auto-escaped and any embedded HTML
+ * or script is displayed verbatim rather than executed. No cell renderer uses
+ * `dangerouslySetInnerHTML`.
+ *
+ * @author Estera Bulkiewicz
  */
 function formatCellValue(value: unknown, column: ColumnSchema): string {
   if (value === null || value === undefined || value === '') return '—'
@@ -173,7 +180,7 @@ interface CellValueProps {
   column: ColumnSchema
 }
 
-/** Renders a cell value with type-aware formatting and alignment. */
+/** Renders a cell value as escaped plain text with type-aware formatting and alignment. */
 function CellValue({ value, column }: CellValueProps) {
   return (
     <span className={cn('block truncate', column.isNumeric && 'text-right tabular-nums')}>
@@ -213,6 +220,8 @@ function buildColumnDef(column: ColumnSchema): ColumnDef<Record<string, unknown>
     header: ({ column: headerColumn }) => (
       <SortableHeader column={headerColumn} label={column.label} />
     ),
+    // Cell content renders through <CellValue /> as escaped JSX text — never
+    // `dangerouslySetInnerHTML` — so untrusted values cannot inject HTML/script.
     cell: ({ row }) => <CellValue value={row.original[column.key]} column={column} />,
     sortingFn: (rowA, rowB) => compareRows(rowA, rowB, column),
   }

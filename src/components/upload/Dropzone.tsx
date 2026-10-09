@@ -9,6 +9,39 @@ import { FileParseError, parseFile } from '../../utils/fileParser'
 /** File extensions accepted by the dropzone. */
 const ACCEPTED_EXTENSIONS = ['.csv', '.xls', '.xlsx'] as const
 
+/** Maximum CSV size in megabytes accepted for client-side parsing. */
+const CSV_MAX_SIZE_MB = 30
+
+/** Maximum spreadsheet (.xls/.xlsx) size in megabytes accepted for parsing. */
+const XLSX_MAX_SIZE_MB = 15
+
+/** Bytes per megabyte used to translate the human-readable limits. */
+const BYTES_PER_MB = 1024 * 1024
+
+/**
+ * Returns the file-size ceiling (in bytes) for the given file name, keyed by
+ * its extension. `.csv` files may be up to 30 MB; `.xls`/`.xlsx` up to 15 MB.
+ * Unknown extensions fall back to the stricter spreadsheet limit.
+ *
+ * @author Estera Bulkiewicz
+ */
+function getMaxFileSizeBytes(fileName: string): number {
+  const extension = fileName.split('.').pop()?.toLowerCase()
+  return extension === 'csv' ? CSV_MAX_SIZE_MB * BYTES_PER_MB : XLSX_MAX_SIZE_MB * BYTES_PER_MB
+}
+
+/**
+ * Builds the user-facing error message for an oversized upload, mirroring the
+ * extension-specific limit so the guidance always matches the guard above.
+ *
+ * @author Estera Bulkiewicz
+ */
+function getSizeLimitMessage(fileName: string): string {
+  const extension = fileName.split('.').pop()?.toLowerCase()
+  const limitMb = extension === 'csv' ? CSV_MAX_SIZE_MB : XLSX_MAX_SIZE_MB
+  return `File size exceeds the ${limitMb} MB client-side parsing limit. Please split your dataset or upload a smaller file.`
+}
+
 /** Sample dataset quick-load actions rendered beneath the drop area. */
 const SAMPLE_ACTIONS: readonly { id: 'saas' | 'ecommerce'; label: string }[] = [
   { id: 'saas', label: 'Load SaaS Sample' },
@@ -42,6 +75,13 @@ export function Dropzone() {
   /** Parses a file and commits the result to the dataset store. */
   const handleFile = useCallback(
     async (file: File) => {
+      // Explicit size guard: block oversized files before any parsing so an
+      // untrusted file cannot exhaust the tab's memory while being decoded.
+      if (file.size > getMaxFileSizeBytes(file.name)) {
+        setError(getSizeLimitMessage(file.name))
+        return
+      }
+
       setIsParsing(true)
       setError(null)
       try {
